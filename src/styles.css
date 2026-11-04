@@ -38,6 +38,12 @@
 
 * { box-sizing: border-box; }
 html, body, #root { height: 100%; }
+/* Trava geral: nada pode empurrar a página para os lados no celular.
+   "clip" (e não "hidden") para não quebrar o cabeçalho fixo. */
+html, body, .shell, .wizard, .auth, .main, .content { overflow-x: clip; }
+html { -webkit-text-size-adjust: 100%; }
+img, svg, video { max-width: 100%; }
+p, li, dd, td, .qa .a, .side-foot, .kpi span, .hint { overflow-wrap: anywhere; }
 body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font); font-size: 15px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
 a { color: var(--b-600); text-decoration: none; }
 a:hover { color: var(--b-700); }
@@ -60,7 +66,8 @@ button { font-family: inherit; }
 
 .field { display: flex; flex-direction: column; gap: 7px; }
 .field label { font-size: 13px; font-weight: 600; color: var(--muted); }
-.input, .select, .textarea { width: 100%; height: 48px; padding: 0 14px; border-radius: 12px; background: #fff; border: 1px solid var(--line-2); color: var(--text); font-size: 15px; font-family: inherit; outline: none; transition: border-color .15s, box-shadow .15s; }
+/* 16px: abaixo disso o iPhone dá zoom ao tocar no campo e a tela passa a deslizar para os lados */
+.input, .select, .textarea { width: 100%; max-width: 100%; height: 48px; padding: 0 14px; border-radius: 12px; background: #fff; border: 1px solid var(--line-2); color: var(--text); font-size: 16px; font-family: inherit; outline: none; transition: border-color .15s, box-shadow .15s; }
 .textarea { height: auto; min-height: 110px; padding: 12px 14px; resize: vertical; }
 .select { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%); background-position: calc(100% - 20px) 21px, calc(100% - 15px) 21px; background-size: 5px 5px; background-repeat: no-repeat; padding-right: 40px; }
 .input:focus, .select:focus, .textarea:focus { border-color: var(--b-500); box-shadow: 0 0 0 4px rgba(61,115,232,.14); }
@@ -237,6 +244,21 @@ tbody tr:hover td { background: #fafbfe; }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 tr.clickable { cursor: pointer; }
 tr.hl td { background: var(--b-50); }
+/* Tabelas responsivas: no celular viram cartões empilhados (sem rolagem lateral) */
+@media (max-width: 680px) {
+  .table-wrap.rtable { overflow: visible; border: 0; background: transparent; box-shadow: none; }
+  .rtable table, .rtable tbody, .rtable tr, .rtable td { display: block; width: 100%; }
+  .rtable thead { display: none; }
+  .rtable tr { background: #fff; border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); padding: 6px 14px; margin-bottom: 10px; }
+  .rtable tr.hl { border-color: var(--b-300); }
+  .rtable tr.hl td { background: transparent; }
+  .rtable td { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--line); text-align: right; white-space: normal; }
+  .rtable td:last-child { border-bottom: 0; }
+  .rtable td::before { content: attr(data-label); color: var(--muted); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; text-align: left; flex: none; max-width: 50%; }
+  .rtable td[data-label=""]::before { display: none; }
+  .rtable td:first-child { justify-content: flex-start; text-align: left; font-size: 15px; }
+  .rtable td:first-child::before { display: none; }
+}
 
 /* Gargalos / ações */
 .issue { display: flex; flex-direction: column; gap: 10px; border-left: 4px solid var(--c, var(--b-500)); }
@@ -333,8 +355,19 @@ tr.hl td { background: var(--b-50); }
   .wizard { grid-template-columns: 1fr; }
   .wiz-side { display: none; }
   .wiz-main { padding: 24px 16px 120px; }
-  .wiz-actions { left: 0; padding: 12px 16px; }
+  .wiz-actions { left: 0; padding: 12px 16px; padding-bottom: max(12px, env(safe-area-inset-bottom)); }
   .wiz-head h1 { font-size: 24px; }
+  .opts { grid-template-columns: 1fr; }
+  .qcard { padding: 18px 16px; }
+}
+@media (max-width: 600px) {
+  .wiz-actions .saved { display: none; }
+  .wiz-actions .btn { flex: 1; padding: 0 12px; }
+  .topbar .btn-sm { padding: 0 10px; font-size: 13px; }
+  .hero h2 { font-size: 21px; }
+  .card { padding: 18px 16px; }
+  .cta { padding: 20px 18px; }
+  .cta .btn { width: 100%; }
 }
 
 .processing { min-height: 100vh; display: grid; place-items: center; padding: 24px; text-align: center; background: #fff; }

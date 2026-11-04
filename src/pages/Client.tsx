@@ -108,14 +108,14 @@ export function History() {
   const latest = rows.find(r => r.status === 'completed');
   return (
     <Shell groups={latest ? clientNav(latest.id, isStaff) : [{ items: [{ to: '/app/questionario', label: 'Diagnóstico', icon: 'plus' }] }]} title="Histórico de diagnósticos" crumb="Cada atualização gera uma nova versão">
-      <div className="table-wrap">
+      <div className="table-wrap rtable">
         <table>
           <thead><tr><th>Versão</th><th>Empresa</th><th>Status</th><th className="num">Score</th><th>Data</th></tr></thead>
           <tbody>{rows.map((r, i) => (
             <tr key={r.id} className="clickable" onClick={() => nav(r.status === 'completed' ? `/app/d/${r.id}` : '/app/questionario')}>
-              <td>V{rows.length - i}</td><td>{r.company_name || '—'}</td>
-              <td><span className={`tag ${r.status === 'completed' ? 'green' : 'yellow'}`}>{r.status === 'completed' ? 'Concluído' : 'Em andamento'}</span></td>
-              <td className="num">{r.overall_score !== null ? <span className="row" style={{ justifyContent: 'flex-end', gap: 8 }}><b>{r.overall_score}</b><ScoreTag s={r.overall_score} /></span> : '—'}</td><td>{date(r.completed_at || r.created_at)}</td>
+              <td><b>V{rows.length - i}</b></td><td data-label="Empresa">{r.company_name || '—'}</td>
+              <td data-label="Status"><span className={`tag ${r.status === 'completed' ? 'green' : 'yellow'}`}>{r.status === 'completed' ? 'Concluído' : 'Em andamento'}</span></td>
+              <td className="num" data-label="Score">{r.overall_score !== null ? <span className="row" style={{ justifyContent: 'flex-end', gap: 8 }}><b>{r.overall_score}</b><ScoreTag s={r.overall_score} /></span> : '—'}</td><td data-label="Data">{date(r.completed_at || r.created_at)}</td>
             </tr>))}</tbody>
         </table>
       </div>

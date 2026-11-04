@@ -303,15 +303,15 @@ function MarketRate({ an }: { an: Analysis }) {
 function ScenarioTable({ rows, highlight = 'base' }: { rows: Analysis['scenarios']; highlight?: string }) {
   const colors: Record<string, string> = { conservador: C.red, base: C.blue, agressivo: C.green };
   return (
-    <div className="table-wrap">
+    <div className="table-wrap rtable">
       <table>
         <thead><tr><th>Cenário</th><th className="num">CPL</th><th className="num">Conversão</th><th className="num">Leads</th><th className="num">Vendas</th><th className="num">Mídia</th><th className="num">Estrutura</th><th className="num">Investimento total</th><th className="num">Faturamento</th><th className="num">Lucro bruto</th><th className="num">CAC</th><th className="num">ROAS</th></tr></thead>
         <tbody>{rows.map(s => (
           <tr key={s.key} className={s.key === highlight ? 'hl' : ''}>
             <td><span className="row" style={{ gap: 8, flexWrap: 'nowrap' }}><i style={{ width: 10, height: 10, borderRadius: 3, background: colors[s.key], display: 'inline-block' }} /><b>{s.label}</b></span></td>
-            <td className="num">{brl(s.cpl)}</td><td className="num">{pct(s.closeRate)}</td><td className="num">{int(s.leads)}</td><td className="num"><b>{int(s.sales)}</b></td>
-            <td className="num">{brl(s.media)}</td><td className="num">{brl(s.structure)}</td><td className="num"><b>{brl(s.investment)}</b></td>
-            <td className="num">{brl(s.revenue)}</td><td className="num">{brl(s.grossProfit)}</td><td className="num">{s.sales ? brl(s.cac) : '—'}</td><td className="num">{s.roas.toFixed(1)}x</td>
+            <td className="num" data-label="CPL">{brl(s.cpl)}</td><td className="num" data-label="Conversão">{pct(s.closeRate)}</td><td className="num" data-label="Leads">{int(s.leads)}</td><td className="num" data-label="Vendas"><b>{int(s.sales)}</b></td>
+            <td className="num" data-label="Mídia">{brl(s.media)}</td><td className="num" data-label="Estrutura">{brl(s.structure)}</td><td className="num" data-label="Investimento total"><b>{brl(s.investment)}</b></td>
+            <td className="num" data-label="Faturamento">{brl(s.revenue)}</td><td className="num" data-label="Lucro bruto">{brl(s.grossProfit)}</td><td className="num" data-label="CAC">{s.sales ? brl(s.cac) : '—'}</td><td className="num" data-label="ROAS">{s.roas.toFixed(1)}x</td>
           </tr>))}</tbody>
       </table>
     </div>
@@ -414,10 +414,10 @@ export function Goals({ an, diagId }: { an: Analysis; diagId?: string }) {
           <LineChart labels={months} fmt={n => n >= 1000 ? `R$ ${Math.round(n / 1000)}k` : brl(n)}
             series={[{ name: 'Meta de faturamento', color: C.green, values: f.ramp.map(m => m.targetRevenue), area: true }, { name: 'Investimento total', color: C.purple, values: f.ramp.map(m => m.investment) }]} />
         </div>
-        <div className="table-wrap mt16">
+        <div className="table-wrap rtable mt16">
           <table>
             <thead><tr><th>Mês</th><th className="num">Eficiência</th><th className="num">Meta de faturamento</th><th className="num">Vendas extras</th><th className="num">Leads extras</th><th className="num">Mídia</th><th className="num">Investimento total</th></tr></thead>
-            <tbody>{f.ramp.map(m => <tr key={m.month}><td>Mês {m.month}</td><td className="num"><span className={`tag ${m.efficiency < .7 ? 'red' : m.efficiency < 1 ? 'yellow' : 'green'}`}>{Math.round(m.efficiency * 100)}%</span></td><td className="num">{brl(m.targetRevenue)}</td><td className="num">{int(m.extraSales)}</td><td className="num">{int(m.leads)}</td><td className="num">{brl(m.media)}</td><td className="num"><b>{brl(m.investment)}</b></td></tr>)}</tbody>
+            <tbody>{f.ramp.map(m => <tr key={m.month}><td><b>Mês {m.month}</b></td><td className="num" data-label="Eficiência"><span className={`tag ${m.efficiency < .7 ? 'red' : m.efficiency < 1 ? 'yellow' : 'green'}`}>{Math.round(m.efficiency * 100)}%</span></td><td className="num" data-label="Meta de faturamento">{brl(m.targetRevenue)}</td><td className="num" data-label="Vendas extras">{int(m.extraSales)}</td><td className="num" data-label="Leads extras">{int(m.leads)}</td><td className="num" data-label="Mídia">{brl(m.media)}</td><td className="num" data-label="Investimento total"><b>{brl(m.investment)}</b></td></tr>)}</tbody>
           </table>
         </div>
       </Section>
@@ -575,8 +575,8 @@ export function ActionPlan({ an, diagId, progress = {}, onToggle }: { an: Analys
         ))}</div>
       </Section>
       <Section title="Indicadores para acompanhar" desc="Só os números que realmente importam para o seu plano.">
-        <div className="table-wrap"><table><thead><tr><th>Indicador</th><th>Por quê</th><th>Referência</th></tr></thead>
-          <tbody>{an.kpis.map(k => <tr key={k.name}><td><b>{k.name}</b></td><td className="muted">{k.why}</td><td>{k.target}</td></tr>)}</tbody></table></div>
+        <div className="table-wrap rtable"><table><thead><tr><th>Indicador</th><th>Por quê</th><th>Referência</th></tr></thead>
+          <tbody>{an.kpis.map(k => <tr key={k.name}><td><b>{k.name}</b></td><td className="muted" data-label="Por quê">{k.why}</td><td data-label="Referência">{k.target}</td></tr>)}</tbody></table></div>
       </Section>
       <VortexCTA an={an} diagId={diagId} />
     </>

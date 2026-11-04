@@ -62,7 +62,7 @@ export function AdminLeads() {
         </select>
         <label className="check"><input type="checkbox" checked={onlyDone} onChange={e => setOnlyDone(e.target.checked)} /> Só concluídos</label>
       </div>
-      <div className="table-wrap mt16">
+      <div className="table-wrap rtable mt16">
         <table>
           <thead><tr><th>Empresa</th><th>Contato</th><th>Segmento</th><th className="num">Faturamento</th><th className="num">Meta</th><th className="num">Score</th><th>Fit</th><th>Status</th><th>Data</th></tr></thead>
           <tbody>
@@ -72,14 +72,14 @@ export function AdminLeads() {
               return (
                 <tr key={r.id} className="clickable" onClick={() => nav(`/admin/lead/${r.id}`)}>
                   <td><b>{r.company_name || '—'}</b>{r.status !== 'completed' && <div className="legend">em andamento</div>}</td>
-                  <td>{[r.profiles?.first_name, r.profiles?.last_name].filter(Boolean).join(' ')}<div className="legend">{r.profiles?.phone} · {r.profiles?.email}</div></td>
-                  <td className="muted">{r.segment === 'Outro' ? r.answers?.q2_other : r.segment || '—'}</td>
-                  <td className="num">{brl(r.result?.financial.currentRevenue ?? (Number(r.answers?.q16) || null))}</td>
-                  <td className="num">{brl(r.result?.financial.targetRevenue ?? (Number(r.answers?.q17) || null))}</td>
-                  <td className="num">{r.overall_score !== null ? <b style={{ color: scoreColor(r.overall_score) }}>{r.overall_score}</b> : '—'}</td>
-                  <td>{fit ? <span className={`tag ${fit.label === 'Quente' ? 'red' : fit.label === 'Morno' ? 'yellow' : 'gray'}`}>{fit.label} {fit.score}</span> : '—'}</td>
-                  <td><span className="tag">{LEAD_STATUS[r.lead_status]}</span>{r.cta_clicked_at && <div className="legend">clicou no CTA</div>}</td>
-                  <td className="muted">{date(r.completed_at || r.created_at)}</td>
+                  <td data-label="Contato"><span>{[r.profiles?.first_name, r.profiles?.last_name].filter(Boolean).join(' ')}<div className="legend">{r.profiles?.phone} · {r.profiles?.email}</div></span></td>
+                  <td className="muted" data-label="Segmento">{r.segment === 'Outro' ? r.answers?.q2_other : r.segment || '—'}</td>
+                  <td className="num" data-label="Faturamento">{brl(r.result?.financial.currentRevenue ?? (Number(r.answers?.q16) || null))}</td>
+                  <td className="num" data-label="Meta">{brl(r.result?.financial.targetRevenue ?? (Number(r.answers?.q17) || null))}</td>
+                  <td className="num" data-label="Score">{r.overall_score !== null ? <b style={{ color: scoreColor(r.overall_score) }}>{r.overall_score}</b> : '—'}</td>
+                  <td data-label="Fit">{fit ? <span className={`tag ${fit.label === 'Quente' ? 'red' : fit.label === 'Morno' ? 'yellow' : 'gray'}`}>{fit.label} {fit.score}</span> : '—'}</td>
+                  <td data-label="Status"><span className="tag">{LEAD_STATUS[r.lead_status]}</span>{r.cta_clicked_at && <div className="legend">clicou no CTA</div>}</td>
+                  <td className="muted" data-label="Data">{date(r.completed_at || r.created_at)}</td>
                 </tr>
               );
             })}
