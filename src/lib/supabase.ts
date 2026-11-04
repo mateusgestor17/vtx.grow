@@ -7,7 +7,10 @@ export const supabase = createClient(url, key, {
   auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
 });
 
-export const VORTEX_WHATSAPP = (import.meta.env.VITE_VORTEX_WHATSAPP as string) || '';
+// WhatsApp oficial da Vortex (47) 99162-5752. A variável de ambiente só substitui se tiver um número real.
+const DEFAULT_WHATSAPP = '5547991625752';
+const envWhats = String(import.meta.env.VITE_VORTEX_WHATSAPP || '').replace(/\D/g, '');
+export const VORTEX_WHATSAPP = envWhats.length >= 12 && !/^55000/.test(envWhats) ? envWhats : DEFAULT_WHATSAPP;
 
 export function whatsappLink(text: string) {
   return `https://wa.me/${VORTEX_WHATSAPP}?text=${encodeURIComponent(text)}`;

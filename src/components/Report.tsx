@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { useAuth } from '../lib/auth';
 import { Analysis, PILLAR_LABEL, Pillar, STAGE_LABEL, STAGE_QUESTION, Stage, Phase, maturityLevel, ActionItem } from '../lib/engine';
 import { journeyPlaybook } from '../lib/playbook';
 import { brl, int, pct } from '../lib/format';
@@ -10,25 +12,79 @@ const STAGES: Stage[] = ['descoberta', 'atencao', 'consideracao', 'acao', 'relac
 const PILLARS: Pillar[] = ['marketing', 'vendas', 'tecnologia', 'indicadores'];
 const STAGE_SHORT: Record<Stage, string> = { descoberta: 'Descoberta', atencao: 'Atenção', consideracao: 'Consideração', acao: 'Ação', relacionamento: 'Relacionamento' };
 
-function ctaMessage(an: Analysis) {
-  return `Olá, Vortex! Fiz o diagnóstico no VTX.GROW.\nEmpresa: ${an.company.name}\nScore de maturidade: ${an.maturity.score}/100\nPrincipal gargalo: ${an.bottlenecks[0]?.title || STAGE_LABEL[an.mainStage]}\nQuero ajuda para executar o plano.`;
+/** Seção atual, lida da URL (/app/d/:id/:secao ou /admin/lead/:id/:aba). */
+function useSection(): string {
+  const { pathname } = useLocation();
+  const parts = pathname.split('/').filter(Boolean);
+  const last = parts[parts.length - 1] || '';
+  return ['maturidade', 'jornada', 'gargalos', 'comunicacao', 'metas', 'canais', 'plano', 'respostas'].includes(last) ? last : '';
+}
+
+/** Mensagem de WhatsApp personalizada: quem é, empresa, números do diagnóstico e o motivo do contato conforme a tela. */
+export function ctaMessage(an: Analysis, section: string, personName?: string | null) {
+  const f = an.financial;
+  const gargalo = an.bottlenecks.find(b => b.stage === an.mainStage) || an.bottlenecks[0];
+  const top = an.actions[0];
+  const recCanal = an.channels.recommendation === 'GOOGLE_FIRST' ? 'Google Ads' : an.channels.recommendation === 'META_FIRST' ? 'Meta Ads' : an.channels.recommendation === 'BOTH' ? 'Google Ads + Meta Ads' : 'estruturar a base antes da mídia';
+  const motivo: Record<string, string> = {
+    '': 'colocar em prática o plano de crescimento que o sistema gerou',
+    maturidade: `subir o índice de maturidade da empresa (hoje em ${an.maturity.score}/100)`,
+    jornada: `desenhar e aplicar a jornada do meu cliente, começando pela etapa de ${STAGE_LABEL[an.mainStage]}`,
+    gargalos: `resolver os gargalos que o diagnóstico encontrou${gargalo ? `, principalmente "${gargalo.title}"` : ''}`,
+    comunicacao: `melhorar a comunicação da empresa (score ${an.communication.score}/100) — site, Instagram, WhatsApp e Google`,
+    metas: `bater a meta de ${brl(f.targetRevenue)}/mês em ${f.months} meses`,
+    canais: `montar e gerenciar as campanhas (recomendação: ${recCanal})`,
+    plano: `executar o plano de ação${top ? `, começando por "${top.title}"` : ''}`,
+    respostas: 'revisar o meu diagnóstico com um especialista',
+  };
+  const nome = personName ? `Sou ${personName}, da *${an.company.name}*` : `Sou da *${an.company.name}*`;
+  const local = [an.company.segment, an.company.city].filter(Boolean).join(' — ');
+  const linhas = [
+    'Olá, equipe Vortex! 👋',
+    '',
+    `${nome}${local ? ` (${local})` : ''}.`,
+    `Fiz o diagnóstico no VTX.GROW e quero ajuda para ${motivo[section] ?? motivo['']}.`,
+    '',
+    '📊 *Resumo do meu diagnóstico*',
+    `• Maturidade: ${an.maturity.score}/100 (${an.maturity.level})`,
+    gargalo ? `• Principal gargalo: ${gargalo.title}` : `• Etapa mais fraca: ${STAGE_LABEL[an.mainStage]}`,
+    `• Faturamento hoje: ${brl(f.currentRevenue)}/mês`,
+    `• Meta: ${brl(f.targetRevenue)}/mês em ${f.months} meses`,
+    f.investmentBase > 0 ? `• Investimento estimado: ${brl(f.investmentBase)}/mês` : null,
+    f.willingness > 0 ? `• Posso investir: ${brl(f.willingness)}/mês` : null,
+    '',
+    'Podemos agendar uma conversa?',
+  ];
+  return linhas.filter(l => l !== null).join('\n');
+}
+export function genericCtaMessage(personName?: string | null) {
+  return `Olá, equipe Vortex! 👋\n\n${personName ? `Sou ${personName} e estou` : 'Estou'} usando o VTX.GROW. Quero falar com um especialista sobre o crescimento da minha empresa.\n\nPodemos conversar?`;
 }
 function markCta(diagId?: string) { if (diagId) supabase.from('diagnostics').update({ cta_clicked_at: new Date().toISOString() }).eq('id', diagId).then(() => {}); }
+function usePersonName() {
+  const { profile } = useAuth();
+  // No painel admin a mensagem é a do lead; o nome do admin não entra.
+  return profile && profile.role === 'client' ? [profile.first_name, profile.last_name].filter(Boolean).join(' ') : null;
+}
 
 export function VortexCTA({ an, diagId, title, text }: { an: Analysis; diagId?: string; title?: string; text?: string }) {
+  const section = useSection();
+  const name = usePersonName();
   return (
     <div className="cta mt24">
       <div>
         <h3>{title || 'Quer ajuda da Vortex para executar esse plano?'}</h3>
         <p>{text || 'Fale com um especialista e transforme o diagnóstico em resultado, com a jornada completa desenhada e aplicada para sua empresa.'}</p>
       </div>
-      <a className="btn" href={whatsappLink(ctaMessage(an))} target="_blank" rel="noreferrer" onClick={() => markCta(diagId)}><Icon name="whatsapp" /> Falar com a Vortex</a>
+      <a className="btn" href={whatsappLink(ctaMessage(an, section, name))} target="_blank" rel="noreferrer" onClick={() => markCta(diagId)}><Icon name="whatsapp" /> Falar com a Vortex</a>
     </div>
   );
 }
 
 export function FloatingCTA({ an, diagId }: { an?: Analysis | null; diagId?: string }) {
-  const msg = an ? ctaMessage(an) : 'Olá, Vortex! Estou usando o VTX.GROW e quero falar com um especialista.';
+  const section = useSection();
+  const name = usePersonName();
+  const msg = an ? ctaMessage(an, section, name) : genericCtaMessage(name);
   return (
     <a className="fab" href={whatsappLink(msg)} target="_blank" rel="noreferrer" onClick={() => markCta(diagId)} aria-label="Fale com a Vortex pelo WhatsApp">
       <Icon name="whatsapp" size={24} /><span className="fab-label">Fale com a Vortex</span>
