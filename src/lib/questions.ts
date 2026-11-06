@@ -22,28 +22,11 @@ export const NONE = '__none__';
 export const QUESTIONNAIRE_VERSION = 1;
 
 export const SEGMENTS = [
-  'Saúde / Clínica médica',
-  'Odontologia',
-  'Estética e beleza',
-  'Advocacia / Jurídico',
-  'Contabilidade / Financeiro',
-  'Imobiliária / Construtora',
-  'Reformas e construção',
-  'Esquadrias, vidraçaria e serralheria',
-  'Móveis planejados / marcenaria',
-  'Energia solar',
-  'Serviços residenciais (desentupidora, dedetização, etc.)',
-  'Educação / Cursos',
-  'Varejo / Loja física',
-  'E-commerce',
-  'Alimentação / Restaurante',
-  'Automotivo',
-  'Pet',
-  'Fitness / Academia',
-  'Tecnologia / SaaS / Software',
-  'Indústria / Distribuição',
-  'Consultoria / Serviços B2B',
-  'Turismo / Eventos',
+  'Esquadrias de alumínio',
+  'Vidraçaria',
+  'Esquadrias e vidraçaria',
+  'Box e espelhos',
+  'Serralheria com vidro',
   'Outro',
 ];
 

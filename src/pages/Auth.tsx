@@ -20,14 +20,14 @@ function AuthLayout({ children }: { children: ReactNode }) {
         <VortexRings />
         <Brand />
         <div className="brand-mid">
-          <span className="eyebrow">Diagnóstico de crescimento</span>
-          <h1>Saiba exatamente o que fazer para <em>crescer com lucro.</em></h1>
-          <p>Responda 30 perguntas sobre sua empresa e receba um diagnóstico completo de maturidade, a jornada do seu cliente e um plano de ação priorizado — com base em inteligência de dados de mais de 30 mil empresas.</p>
+          <span className="eyebrow">Para esquadrias e vidraçarias</span>
+          <h1>Mostre o projeto pronto <em>antes de vender.</em></h1>
+          <p>Simule com IA como o projeto vai ficar na foto do cliente, monte orçamentos em PDF com medidas e vidros e siga um plano de crescimento feito para o seu negócio.</p>
         </div>
         <div className="brand-stats">
-          <div><b>+30 mil</b><small>empresas na base de inteligência</small></div>
-          <div><b>5 etapas</b><small>da jornada do consumidor</small></div>
-          <div><b>~8 min</b><small>para receber seu plano</small></div>
+          <div><b>Antes e depois</b><small>simulador com IA</small></div>
+          <div><b>PDF de vendas</b><small>orçamento completo</small></div>
+          <div><b>Plano</b><small>de crescimento</small></div>
         </div>
       </div>
       <div className="auth-form">
@@ -59,7 +59,7 @@ export function Login() {
   return (
     <AuthLayout>
       <h2>Bem-vindo de volta</h2>
-      <p className="sub">Entre para acessar seu diagnóstico e plano de crescimento.</p>
+      <p className="sub">Entre para acessar seu simulador, orçamentos e plano de crescimento.</p>
       <form onSubmit={submit}>
         {err && <div className="error">{err}</div>}
         <div className="field"><label htmlFor="email">E-mail</label><input id="email" className="input" type="email" autoComplete="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="voce@empresa.com.br" /></div>

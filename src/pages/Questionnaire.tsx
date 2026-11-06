@@ -208,7 +208,7 @@ export default function Questionnaire() {
         </div>
         <div className="side-foot" style={{ marginTop: 'auto' }}>
           Suas respostas são salvas automaticamente. Você pode sair e continuar depois.
-          <br /><button onClick={() => nav('/app')}>Voltar ao painel</button>
+          <br /><button onClick={() => nav('/app/simulador')}>Ir para o Simulador de IA</button>
         </div>
       </aside>
 

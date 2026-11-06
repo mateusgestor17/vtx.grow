@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
+import { Link, NavLink, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../lib/auth';
 import { analyze, Analysis, ENGINE_VERSION } from '../lib/engine';
@@ -16,7 +16,7 @@ export const SECTIONS: { key: string; label: string; icon: string; title: string
   { key: 'jornada', label: 'Jornada do consumidor', icon: 'route', title: 'Jornada do consumidor' },
   { key: 'gargalos', label: 'Gargalos', icon: 'target', title: 'Diagnóstico de gargalos' },
   { key: 'comunicacao', label: 'Comunicação', icon: 'message', title: 'Auditoria de comunicação' },
-  { key: 'metas', label: 'Metas e investimento', icon: 'money', title: 'Metas, funil reverso e investimento' },
+  { key: 'metas', label: 'Metas e investimentos', icon: 'money', title: 'Metas, funil reverso e investimento' },
   { key: 'canais', label: 'Canais e captação', icon: 'channels', title: 'Canais e plano de captação' },
   { key: 'plano', label: 'Plano de ação', icon: 'list', title: 'Plano de ação' },
   { key: 'respostas', label: 'Minhas respostas', icon: 'file', title: 'Respostas do diagnóstico' },
@@ -56,10 +56,25 @@ export function ClientHome() {
   return target ? <Navigate to={target} replace /> : <Loading />;
 }
 
-function clientNav(id: string, isStaff: boolean): NavGroup[] {
+/** Menu do app: três áreas principais. O detalhe do plano fica nas abas internas. */
+export function useAppNav(): NavGroup[] {
+  const { session, isStaff } = useAuth();
+  const [latest, setLatest] = useState<string | null>(null);
+  useEffect(() => {
+    supabase.from('diagnostics').select('id').eq('user_id', session!.user.id).eq('status', 'completed').order('completed_at', { ascending: false }).limit(1)
+      .then(({ data }) => setLatest(data?.[0]?.id ?? null));
+  }, [session]);
   const g: NavGroup[] = [
-    { label: 'Diagnóstico', items: SECTIONS.map(s => ({ to: `/app/d/${id}${s.key ? '/' + s.key : ''}`, label: s.label, icon: s.icon, end: true })) },
-    { label: 'Conta', items: [{ to: '/app/historico', label: 'Histórico', icon: 'history' }, { to: '/app/questionario', label: 'Atualizar diagnóstico', icon: 'plus' }] },
+    { items: [
+      { to: latest ? `/app/d/${latest}` : '/app/questionario', label: 'Plano de Crescimento', icon: 'trend' },
+      { to: '/app/simulador', label: 'Simulador de IA', icon: 'bolt' },
+      { to: '/app/orcamentos', label: 'Orçamentos', icon: 'file' },
+    ] },
+    { label: 'Conta', items: [
+      { to: '/app/empresa', label: 'Minha empresa', icon: 'home' },
+      { to: '/app/historico', label: 'Histórico', icon: 'history' },
+      { to: '/app/questionario', label: 'Atualizar diagnóstico', icon: 'plus' },
+    ] },
   ];
   if (isStaff) g.push({ label: 'Vortex', items: [{ to: '/admin', label: 'Painel admin', icon: 'users' }] });
   return g;
@@ -67,7 +82,7 @@ function clientNav(id: string, isStaff: boolean): NavGroup[] {
 
 export function ClientReport() {
   const { id, section = '' } = useParams();
-  const { isStaff } = useAuth();
+  const groups = useAppNav();
   const [row, setRow] = useState<DiagRow | null>(null);
   const [missing, setMissing] = useState(false);
   const [progress, setProgress] = useState<Record<string, boolean>>({});
@@ -88,8 +103,9 @@ export function ClientReport() {
     supabase.from('diagnostics').update({ progress: next }).eq('id', row!.id).then(() => {});
   }
   return (
-    <Shell groups={clientNav(row.id, isStaff)} title={sec.title} crumb={`${row.company_name || 'Sua empresa'} · ${date(row.completed_at)}`}
+    <Shell groups={groups} title="Plano de Crescimento" crumb={`${row.company_name || 'Sua empresa'} · ${date(row.completed_at)}`}
       actions={<Link to="/app/questionario" className="btn btn-ghost btn-sm">Atualizar dados</Link>}>
+      <nav className="tabs plan-tabs">{SECTIONS.map(s => <NavLink key={s.key} end to={`/app/d/${row.id}${s.key ? '/' + s.key : ''}`}>{s.label}</NavLink>)}</nav>
       {renderSection(sec.key, an, row.answers, row.id, progress, toggle)}
       <FloatingCTA an={an} diagId={row.id} />
     </Shell>
@@ -97,17 +113,17 @@ export function ClientReport() {
 }
 
 export function History() {
-  const { session, isStaff } = useAuth();
+  const { session } = useAuth();
   const nav = useNavigate();
+  const groups = useAppNav();
   const [rows, setRows] = useState<DiagRow[] | null>(null);
   useEffect(() => {
     supabase.from('diagnostics').select('id,status,company_name,overall_score,created_at,completed_at').eq('user_id', session!.user.id).order('created_at', { ascending: false })
       .then(({ data }) => setRows((data as DiagRow[]) || []));
   }, [session]);
   if (!rows) return <Loading />;
-  const latest = rows.find(r => r.status === 'completed');
   return (
-    <Shell groups={latest ? clientNav(latest.id, isStaff) : [{ items: [{ to: '/app/questionario', label: 'Diagnóstico', icon: 'plus' }] }]} title="Histórico de diagnósticos" crumb="Cada atualização gera uma nova versão">
+    <Shell groups={groups} title="Histórico de diagnósticos" crumb="Cada atualização gera uma nova versão">
       <div className="table-wrap rtable">
         <table>
           <thead><tr><th>Versão</th><th>Empresa</th><th>Status</th><th className="num">Score</th><th>Data</th></tr></thead>

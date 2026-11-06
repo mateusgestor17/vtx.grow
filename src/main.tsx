@@ -6,6 +6,8 @@ import { Loading } from './components/ui';
 import { Forgot, Login, ResetPassword, Signup } from './pages/Auth';
 import Questionnaire from './pages/Questionnaire';
 import { ClientHome, ClientReport, History } from './pages/Client';
+import Simulator from './pages/Simulator';
+import { BusinessSettings, QuoteEditor, QuotesList } from './pages/Quotes';
 import { AdminAudit, AdminLead, AdminLeads } from './pages/Admin';
 import './styles.css';
 
@@ -35,6 +37,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <Route path="/app/questionario" element={<Private><Questionnaire /></Private>} />
           <Route path="/app/historico" element={<Private><History /></Private>} />
           <Route path="/app/d/:id/:section?" element={<Private><ClientReport /></Private>} />
+          <Route path="/app/simulador" element={<Private><Simulator /></Private>} />
+          <Route path="/app/orcamentos" element={<Private><QuotesList /></Private>} />
+          <Route path="/app/orcamentos/novo" element={<Private><QuoteEditor key="novo" /></Private>} />
+          <Route path="/app/orcamentos/:id" element={<Private><QuoteEditor /></Private>} />
+          <Route path="/app/empresa" element={<Private><BusinessSettings /></Private>} />
           <Route path="/admin" element={<Private staff><AdminLeads /></Private>} />
           <Route path="/admin/auditoria" element={<Private staff><AdminAudit /></Private>} />
           <Route path="/admin/lead/:id/:tab?" element={<Private staff><AdminLead /></Private>} />

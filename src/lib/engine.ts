@@ -42,6 +42,11 @@ const SEG: Record<string, SegRef> = {
   'Outro':                                   { searchIntent: .6,  visual: .6,  urgency: .5,  cpl: [20, 70],  close: [.05, .10, .15], b2b: .3 },
 };
 const SEG_ALIAS: Record<string, string> = {
+  'Esquadrias de alumínio': 'Esquadrias, vidraçaria e serralheria',
+  'Vidraçaria': 'Esquadrias, vidraçaria e serralheria',
+  'Esquadrias e vidraçaria': 'Esquadrias, vidraçaria e serralheria',
+  'Box e espelhos': 'Esquadrias, vidraçaria e serralheria',
+  'Serralheria com vidro': 'Esquadrias, vidraçaria e serralheria',
   'Serviços residenciais (desentupidora, vidraçaria, etc.)': 'Serviços residenciais (desentupidora, dedetização, etc.)',
 };
 
@@ -183,7 +188,7 @@ export function analyze(a: Answers): Analysis {
   let unknowns = 0;
 
   const segKey = a.q2 === 'Outro' ? inferSegment(a.q2_other || '') : (SEG_ALIAS[a.q2] || a.q2);
-  const segment: string = a.q2 === 'Outro' ? (a.q2_other || 'Outro') : (segKey || 'Outro');
+  const segment: string = a.q2 === 'Outro' ? (a.q2_other || 'Outro') : (a.q2 || 'Outro');
   const ref = SEG[segKey] || SEG['Outro'];
   const scope: string = a.q4 || 'Apenas minha cidade';
   const isLocal = scope === 'Apenas minha cidade' || scope === 'Minha região';
